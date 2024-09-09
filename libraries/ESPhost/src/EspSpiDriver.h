@@ -62,6 +62,7 @@ void setSpiTransactionInPRogress();
 
 #ifndef ESP_ADC
 #define ESP_ADC
+
 void adc_read();
 
 extern float voltage_v;
@@ -70,7 +71,7 @@ extern float flow_v;
 extern float voltage;
 extern float current;
 extern float flow;
-  
+
 #define RG_Ch_0 0x05 // Channel 0 Input Range: default 0x00 - bit 3-0 to select range
 #define RG_Ch_1 0x06 // Channel 1 Input Range: default 0x00 - bit 3-0 to select range
 #define RG_Ch_2 0x07 // Channel 2 Input Range: default 0x00 - bit 3-0 to select range

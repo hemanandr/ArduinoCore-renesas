@@ -148,7 +148,6 @@ bool isEspSpiInitialized()
    return spi_driver_initialized;
 }
 
-
 float I2V(uint16_t x, uint8_t range);
 uint8_t write_register(uint8_t reg, uint8_t value);
 uint8_t read_register(uint8_t reg);
@@ -178,6 +177,8 @@ int esp_host_spi_init(void)
    R_IOPORT_PinCfg(NULL, DATA_READY, (uint32_t)(IOPORT_CFG_IRQ_ENABLE | IOPORT_CFG_PORT_DIRECTION_INPUT));
 
    R_IOPORT_PinCfg(NULL, ADC_CS, IOPORT_CFG_PORT_DIRECTION_OUTPUT);
+   R_IOPORT_PinWrite(NULL, ADC_CS, BSP_IO_LEVEL_HIGH);
+
    R_IOPORT_PinCfg(NULL, ESP_CS, IOPORT_CFG_PORT_DIRECTION_OUTPUT);
    R_IOPORT_PinCfg(NULL, LEDR, IOPORT_CFG_PORT_DIRECTION_OUTPUT);
    R_IOPORT_PinCfg(NULL, ESP_RESET, IOPORT_CFG_PORT_DIRECTION_OUTPUT);
@@ -289,6 +290,8 @@ int esp_host_spi_init(void)
 
    R_IOPORT_PinWrite(NULL, ESP_RESET, BSP_IO_LEVEL_HIGH);
    spi_driver_initialized = true;
+
+   adc_init();
 
    return ESP_HOSTED_SPI_DRIVER_OK;
 }
@@ -448,7 +451,6 @@ int esp_host_spi_transaction(void)
       spi_transaction_in_progress = false;
    }
 
-   adc_init();
    return rv;
 }
 
@@ -479,13 +481,6 @@ int esp_host_send_and_receive(void)
       R_BSP_SoftwareDelay(100, BSP_DELAY_UNITS_MICROSECONDS);
       time_num++;
    } while (time_num < 5000);
-   
-   // Serial.print("Write: ");
-   // Serial.println(write_register(0x01, count++));
-   // Serial.print("Read: ");
-   // Serial.println(read_register(0x01));
-
-   adc_read();
 
    if (esp_ready)
    {
@@ -648,7 +643,7 @@ uint8_t read_register(uint8_t reg)
 {
    uint8_t tx_buffer[3] = {(reg << 1), 0x00, 0x00};
    uint8_t rx_buffer[3] = {0, 0, 0};
-   
+
    R_IOPORT_PinWrite(NULL, ESP_CS, BSP_IO_LEVEL_HIGH);
    R_IOPORT_PinWrite(NULL, ADC_CS, BSP_IO_LEVEL_LOW);
    R_BSP_SoftwareDelay(100, BSP_DELAY_UNITS_MICROSECONDS);
@@ -659,7 +654,8 @@ uint8_t read_register(uint8_t reg)
    return rx_buffer[2];
 }
 
-uint16_t read_channel(uint8_t channel){
+uint16_t read_channel(uint8_t channel)
+{
    {
       uint8_t tx_buffer[4] = {channel, 0, 0, 0};
       uint8_t rx_buffer[4] = {0, 0, 0, 0};
@@ -686,25 +682,25 @@ uint16_t read_channel(uint8_t channel){
       R_BSP_SoftwareDelay(100, BSP_DELAY_UNITS_MICROSECONDS);
       R_IOPORT_PinWrite(NULL, ADC_CS, BSP_IO_LEVEL_HIGH);
 
-      // Serial.println(rx_buffer[2],HEX);
-      // Serial.println(rx_buffer[3],HEX);
-
       return (rx_buffer[2] << 8) | rx_buffer[3];
    }
 }
 
-void adc_init(){
-   write_register(RG_Ch_0, RNG_U_10_24); //Channel 0 - Voltage Channel - 0 to 10.24V
-   write_register(RG_Ch_1, RNG_B_5_12); //Channel 1 - Current Channel - -5.12 to 5.12V
-   write_register(RG_Ch_2, RNG_U_5_12); //Channel 2 - Flow MEter - 0 to 5.12V
+void adc_init()
+{
+   Serial.println(write_register(RG_Ch_0, RNG_U_10_24)); // Channel 0 - Voltage Channel - 0 to 10.24V
+   Serial.println(write_register(RG_Ch_1, RNG_B_5_12));  // Channel 1 - Current Channel - -5.12 to 5.12V
+   Serial.println(write_register(RG_Ch_2, RNG_U_5_12));  // Channel 2 - Flow MEter - 0 to 5.12V
 }
 
-void VToFlow(float v, float max_flow){
+void VToFlow(float v, float max_flow)
+{
    float raw = max(0, v - 1);
    flow = raw * max_flow / 4;
 }
 
-void adc_read(){
+void adc_read()
+{
    uint16_t voltage_raw = read_channel(MAN_Ch_0);
    voltage_v = I2V(voltage_raw, RNG_U_10_24);
    voltage = voltage * 12;

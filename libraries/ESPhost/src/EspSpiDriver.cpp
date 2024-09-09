@@ -688,9 +688,10 @@ uint16_t read_channel(uint8_t channel)
 
 void adc_init()
 {
-   Serial.println(write_register(RG_Ch_0, RNG_U_10_24)); // Channel 0 - Voltage Channel - 0 to 10.24V
-   Serial.println(write_register(RG_Ch_1, RNG_B_5_12));  // Channel 1 - Current Channel - -5.12 to 5.12V
-   Serial.println(write_register(RG_Ch_2, RNG_U_5_12));  // Channel 2 - Flow MEter - 0 to 5.12V
+   uint8_t ch1 = write_register(RG_Ch_0, RNG_U_10_24); // Channel 0 - Voltage Channel - 0 to 10.24V
+   uint8_t ch2 = write_register(RG_Ch_1, RNG_B_5_12);  // Channel 1 - Current Channel - -5.12 to 5.12V
+   uint8_t ch3 = write_register(RG_Ch_2, RNG_U_5_12);  // Channel 2 - Flow MEter - 0 to 5.12V
+   Serial.println(String("ADC Initialized: ") + String(ch1) + String("; ") + String(ch2) + String("; ") + String(ch3));
 }
 
 void VToFlow(float v, float max_flow)

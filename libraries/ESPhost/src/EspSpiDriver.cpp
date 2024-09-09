@@ -65,7 +65,6 @@
 #define ESP_CK BSP_IO_PORT_01_PIN_02
 #define ESP_CS BSP_IO_PORT_01_PIN_04
 #define ADC_CS BSP_IO_PORT_01_PIN_03
-#define LEDR BSP_IO_PORT_01_PIN_07
 #endif
 
 /* #################
@@ -180,7 +179,6 @@ int esp_host_spi_init(void)
    R_IOPORT_PinWrite(NULL, ADC_CS, BSP_IO_LEVEL_HIGH);
 
    R_IOPORT_PinCfg(NULL, ESP_CS, IOPORT_CFG_PORT_DIRECTION_OUTPUT);
-   R_IOPORT_PinCfg(NULL, LEDR, IOPORT_CFG_PORT_DIRECTION_OUTPUT);
    R_IOPORT_PinCfg(NULL, ESP_RESET, IOPORT_CFG_PORT_DIRECTION_OUTPUT);
 // #endif
 
@@ -486,7 +484,6 @@ int esp_host_send_and_receive(void)
    {
       /* Put CS LOW */
       R_IOPORT_PinWrite(NULL, ESP_CS, BSP_IO_LEVEL_LOW);
-      R_IOPORT_PinWrite(NULL, LEDR, BSP_IO_LEVEL_LOW);
       R_BSP_SoftwareDelay(100, BSP_DELAY_UNITS_MICROSECONDS);
 
       /* memset RX buffer */
@@ -565,7 +562,6 @@ int esp_host_send_and_receive(void)
 
    /* in any case de-select ESP32 */
    R_IOPORT_PinWrite(NULL, ESP_CS, BSP_IO_LEVEL_HIGH);
-   R_IOPORT_PinWrite(NULL, LEDR, BSP_IO_LEVEL_HIGH);
 
    return rv;
 }

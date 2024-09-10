@@ -704,7 +704,7 @@ void adc_read()
 
    uint16_t current_raw = read_channel(MAN_Ch_1);
    current_v = I2V(current_raw, RNG_B_5_12);
-   current = current_v * (500 / 4.8);
+   current = current_v * (500 / 4.56);
 
    uint16_t flow_raw = read_channel(MAN_Ch_2);
    flow_v = I2V(flow_raw, RNG_U_5_12);
